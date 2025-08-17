@@ -201,7 +201,10 @@ export default function Home() {
                 <p className="text-sm text-orange-600 mt-2">Please select {3 - formData.proteins.length} more protein option{3 - formData.proteins.length !== 1 ? 's' : ''}</p>
               )}
               {formData.proteins.length === 3 && (
-                <p className="text-sm text-green-600 mt-2">✓ Perfect! You've selected all three protein options</p>
+                <p className="text-sm text-green-600 mt-2">
+                ✓ Perfect! You&apos;ve selected all three protein options
+              </p>
+              
               )}
             </div>
 
