@@ -10,7 +10,7 @@ export default function Home() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  
   const proteinOptions = [
     { value: 'chicken', label: 'Chicken', price: 0 },
     { value: 'shrimp', label: 'Shrimp', price: 0 },
@@ -36,10 +36,8 @@ export default function Home() {
       const index = currentProteins.indexOf(proteinValue);
       
       if (index > -1) {
-        // Remove if already selected
         currentProteins.splice(index, 1);
       } else {
-        // Add if not selected
         currentProteins.push(proteinValue);
       }
       
@@ -74,13 +72,12 @@ export default function Home() {
         throw new Error(result.error || 'Failed to submit order');
       }
 
-      // Reset form after successful submission
+   
       setFormData({
         guestNames: '',
         proteins: [],
         additionalNotes: ''
       });
-      alert(`Order submitted successfully! Order ID: ${result.orderId}`);
     } catch (error) {
       console.error('Error submitting form:', error);
       alert(`Error submitting order: ${error.message}`);
@@ -250,7 +247,6 @@ export default function Home() {
               </div>
             </div>
 
-         
             <button
               type="submit"
               disabled={isSubmitting}
