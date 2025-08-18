@@ -4,13 +4,12 @@ import { useState } from 'react';
 
 export default function Home() {
   const [formData, setFormData] = useState({
-    guestNames: '',
+    guestName: '',
     proteins: [],
     additionalNotes: ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   
   const proteinOptions = [
     { value: 'chicken', label: 'Chicken', price: 0 },
@@ -74,12 +73,12 @@ export default function Home() {
       }
   
       setFormData({
-        guestNames: '',
+        guestName: '',
         proteins: [],
         additionalNotes: ''
       });
       
-       alert(`Added to the order! Thanks for submitting ${formData.guestNames}.`)
+       alert(`Added to the order! Thanks for submitting ${formData.guestName}.`)
     
     
     } catch (error) {
@@ -102,8 +101,8 @@ export default function Home() {
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
             🍳 Hibachi Orders For Frankies Bachelor Party
           </h1>
-                      <div className="bg-white rounded-lg p-6 shadow-lg">
-              <p className="text-gray-600 leading-relaxed">
+          <div className="bg-white rounded-lg p-6 shadow-lg">
+            <p className="text-gray-600 leading-relaxed">
               We’ll be having Hibachi from {' '}
                 <a 
                   href="https://www.hibachiomakase.com/hibachi-catering-pennsylvania-booking/"
@@ -126,19 +125,19 @@ export default function Home() {
           </h2>
           
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Guest Names */}
+            {/* Guest  */}
             <div>
-              <label htmlFor="guestNames" className="block text-sm font-medium text-gray-700 mb-2">
-                Guest Names *
+              <label htmlFor="guestName" className="block text-sm font-medium text-gray-700 mb-2">
+                Guest Name *
               </label>
               <input
                 type="text"
-                id="guestNames"
-                name="guestNames"
-                value={formData.guestNames}
+                id="guestName"
+                name="guestName"
+                value={formData.guestName}
                 onChange={handleInputChange}
                 required
-                placeholder="Enter guest names (e.g., John Smith, Jane Doe)"
+                placeholder="Enter guest name (e.g., John Smith, Jane Doe)"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
               />
             </div>
