@@ -1,28 +1,17 @@
 # Hibachi Orders
+![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
 A  single-page website for collecting Hibachi orders with a form that can be integrated with Google Docs.
 
 ## Features
-
-- 🍳 Beautiful Hibachi-themed design
-- 👥 Guest name collection
-- 🥩 Protein selection with pricing
-- 📝 Additional notes field
-- 💰 Real-time price calculation
-- 📱 Responsive design for all devices
-- ✅ Form validation
-- 🚀 API endpoint for order processing
-
-## Protein Options
-
-- **Chicken** - Base price
-- **Shrimp** - Base price  
-- **Salmon** - Base price
-- **Steak** - Base price
-- **Scallops** - Base price
-- **Vegetable (+tofu)** - Base price
-- **Filet Mignon** - +$5
-- **Lobster Tail** - +$10
+- Selection with pricing
+- Additional notes field
+- Real-time price calculation
+- Responsive design for all devices
+- Form validation
+- API endpoint for order processing
 
 ## Getting Started
 
