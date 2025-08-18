@@ -4,7 +4,7 @@ import { useState } from 'react';
 export default function Home() {
   const [formData, setFormData] = useState({
     guestName: '',
-    proteins: [],
+    proteins: ['', '', ''],
     additionalNotes: ''
   });
 
@@ -29,28 +29,18 @@ export default function Home() {
     }));
   };
 
-  const handleProteinChange = (proteinValue) => {
+  const handleProteinChange = (index, value) => {
     setFormData(prev => {
-      const currentProteins = [...prev.proteins];
-      const index = currentProteins.indexOf(proteinValue);
-      
-      if (index > -1) {
-        currentProteins.splice(index, 1);
-      } else {
-        currentProteins.push(proteinValue);
-      }
-      
-      return {
-        ...prev,
-        proteins: currentProteins
-      };
+      const updated = [...prev.proteins];
+      updated[index] = value;
+      return { ...prev, proteins: updated };
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.proteins.length !== 3) {
-      alert('Please select exactly three protein options before submitting.');
+    if (!formData.proteins[0] || !formData.proteins[1] || !formData.proteins[2]) {
+      alert('Please select a protein for Protein 1, Protein 2, and Protein 3.');
       return;
     }
     
@@ -73,12 +63,11 @@ export default function Home() {
   
       setFormData({
         guestName: '',
-        proteins: [],
+        proteins: ['', '', ''],
         additionalNotes: ''
       });
-      
-       alert(`Added to the order! Thanks for submitting ${formData.guestName}.`)
     
+       alert(`Added to the order! Thanks for submitting ${formData.guestName}.`)
     
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -88,7 +77,9 @@ export default function Home() {
     }
   };
 
-  const selectedProteins = proteinOptions.filter(option => formData.proteins.includes(option.value));
+  const selectedProteins = formData.proteins
+    .map(v => proteinOptions.find(o => o.value === v))
+    .filter(Boolean);
   const basePrice = 60;
   const totalPrice = basePrice + selectedProteins.reduce((sum, protein) => sum + protein.price, 0);
 
@@ -111,7 +102,7 @@ export default function Home() {
                 >
                   Hibachi Catering Pennsylvania 
                 </a>
-                 {" "}on Sunday August 31st. Please choose exactly three protein options. The cost is $60 per person, which includes fried rice and noodles. 
+                 {" "}on Sunday August 31st. Please choose  three protein options. The cost is $60 per person, which includes fried rice and noodles. 
                  If you wish to add Filet Mignon or Lobster Tail, please note that Filet Mignon is an additional $5 and Lobster Tail is an additional $10.
               </p>
             </div>
@@ -119,6 +110,7 @@ export default function Home() {
 
         {/* Order Form */}
         <div className="bg-white rounded-lg shadow-lg p-8">
+          
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
             Place Your Order
           </h2>
@@ -140,73 +132,74 @@ export default function Home() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
               />
             </div>
-
-            {/* Protein Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Please Select Three Protein Options* ({formData.proteins.length}/3)
+                Please choose  three protein options
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {proteinOptions.map((option) => {
-                  const isSelected = formData.proteins.includes(option.value);
-                  const isDisabled = !isSelected && formData.proteins.length >= 3;
-                  
-                  return (
-                    <label
-                      key={option.value}
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        isDisabled 
-                          ? 'border-gray-200 bg-gray-100 cursor-not-allowed opacity-60'
-                          : isSelected
-                            ? 'border-orange-500 bg-orange-50'
-                            : 'border-gray-200 hover:border-orange-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        name="proteins"
-                        value={option.value}
-                        checked={isSelected}
-                        onChange={() => handleProteinChange(option.value)}
-                        disabled={isDisabled}
-                        className="sr-only"
-                      />
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-800">
-                          {option.label}
-                        </div>
-                        {option.price > 0 && (
-                          <div className="text-sm text-orange-600 font-semibold">
-                            +${option.price}
-                          </div>
-                        )}
-                      </div>
-                      <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center ${
-                        isSelected
-                          ? 'border-orange-500 bg-orange-500'
-                          : 'border-gray-300'
-                      }`}>
-                        {isSelected && (
-                          <div className="text-white text-sm font-bold">✓</div>
-                        )}
-                      </div>
-                    </label>
-                  );
-                })}
+              <div className="space-y-6">
+                {[0,1,2].map((idx) => (
+                  <div key={idx}>
+                    <div className="text-xs text-gray-600 mb-2">{`Protein ${idx+1}`}</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {proteinOptions.map((option) => {
+                        const isSelected = formData.proteins[idx] === option.value;
+                        return (
+                          <label
+                            key={option.value}
+                            className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                              isSelected
+                                ? 'border-orange-500 bg-orange-50'
+                                : 'border-gray-200 hover:border-orange-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name={`protein-${idx}`}
+                              value={option.value}
+                              checked={isSelected}
+                              onChange={(e) => handleProteinChange(idx, e.target.value)}
+                              required
+                              className="sr-only"
+                            />
+                            <div className="flex-1">
+                              <div className="font-medium text-gray-800">{option.label}</div>
+                              {option.price > 0 && (
+                                <div className="text-sm text-orange-600 font-semibold">+${option.price}</div>
+                              )}
+                            </div>
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                              isSelected ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
+                            }`}>
+                              {isSelected && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
-              {formData.proteins.length === 0 && (
-                <p className="text-sm text-red-600 mt-2">Please select exactly three protein options</p>
-              )}
-              {formData.proteins.length > 0 && formData.proteins.length < 3 && (
-                <p className="text-sm text-orange-600 mt-2">Please select {3 - formData.proteins.length} more protein option{3 - formData.proteins.length !== 1 ? 's' : ''}</p>
-              )}
-              {formData.proteins.length === 3 && (
-                <p className="text-sm text-green-600 mt-2">
-                ✓ Perfect! You&apos;ve selected all three protein options
-              </p>
-              
-              )}
             </div>
+                {/* Live selection feedback */}
+                {(() => {
+                const selectedCount = formData.proteins.filter(Boolean).length;
+                if (selectedCount === 0) {
+                  return (
+                    <p className="text-sm text-red-600 mt-2">Please select exactly three protein options</p>
+                  );
+                }
+                if (selectedCount > 0 && selectedCount < 3) {
+                  return (
+                    <p className="text-sm text-orange-600 mt-2">Please select {3 - selectedCount} more protein option{3 - selectedCount !== 1 ? 's' : ''}</p>
+                  );
+                }
+                if (selectedCount === 3) {
+                  return (
+                    <p className="text-sm text-green-600 mt-2">✓ Perfect! You&apos;ve selected all three protein options</p>
+                  );
+                }
+                return null;
+              })()}
 
             {/* Additional Notes */}
             <div>
@@ -232,8 +225,8 @@ export default function Home() {
               </div>
               {selectedProteins.length > 0 && (
                 <>
-                  {selectedProteins.map((protein) => (
-                    <div key={protein.value} className="flex justify-between items-center">
+                  {selectedProteins.map((protein, idx) => (
+                    <div key={`${protein.value}-${idx}`} className="flex justify-between items-center">
                       <span className="text-gray-600">{protein.label}:</span>
                       <span className="font-medium text-orange-600">+${protein.price}</span>
                     </div>
@@ -270,7 +263,7 @@ export default function Home() {
             </button>
           </form>
         </div>
- 
+         
         <div className="text-center mt-8 text-gray-500 text-sm">
           <p className="mt-2 text-gray-400">Created by Som Ramnani</p>
         </div>
