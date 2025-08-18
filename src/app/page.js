@@ -273,7 +273,6 @@ export default function Home() {
         </div>
  
         <div className="text-center mt-8 text-gray-500 text-sm">
-          <p>🍣 Fresh ingredients • 🔥 Hot grill • 👨‍🍳 Expert chefs</p>
           <p className="mt-2 text-gray-400">Created by Som Ramnani</p>
         </div>
       </div>
