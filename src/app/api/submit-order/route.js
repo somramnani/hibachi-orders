@@ -87,7 +87,6 @@ export async function POST(request) {
     }
 
 
-
     console.log('New order received:', {
       guestName,
       proteins,
