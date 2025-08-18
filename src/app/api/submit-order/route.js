@@ -1,9 +1,10 @@
+import { google } from 'googleapis';
+
 export async function POST(request) {
   try {
     const body = await request.json();
     const { guestNames, proteins, additionalNotes } = body;
 
-    // Validate required fields
     if (!guestNames || !proteins || proteins.length !== 3) {
       return Response.json(
         { error: 'Guest names and exactly three protein selections are required' },
@@ -11,19 +12,102 @@ export async function POST(request) {
       );
     }
 
-    // Log the order (for now)
+    try {
+      if (!process.env.GOOGLE_SHEETS_ID) {
+        console.log('Google Sheets not configured - skipping Google Sheets integration');
+        throw new Error('GOOGLE_SHEETS_ID environment variable not set');
+      }
+
+        let privateKey = process.env.GOOGLE_PRIVATE_KEY;
+        if (privateKey) {
+          privateKey = privateKey.replace(/^["']|["']$/g, '').replace(/\\n/g, '\n');
+        }
+
+        const auth = new google.auth.GoogleAuth({
+          credentials: {
+            type: 'service_account',
+            project_id: process.env.GOOGLE_PROJECT_ID,
+            private_key: privateKey,
+            client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+          },
+          scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+        });
+
+      const sheets = google.sheets({ version: 'v4', auth });
+      
+   
+      const proteinOptions = [
+        { value: 'chicken', label: 'Chicken', price: 0 },
+        { value: 'shrimp', label: 'Shrimp', price: 0 },
+        { value: 'salmon', label: 'Salmon', price: 0 },
+        { value: 'steak', label: 'Steak', price: 0 },
+        { value: 'scallops', label: 'Scallops', price: 0 },
+        { value: 'vegetable', label: 'Vegetable (+tofu)', price: 0 },
+        { value: 'filet-mignon', label: 'Filet Mignon (+$5)', price: 5 },
+        { value: 'lobster-tail', label: 'Lobster Tail (+$10)', price: 10 }
+      ];
+      
+      const basePrice = 60;
+      const selectedProteins = proteinOptions.filter(option => proteins.includes(option.value));
+      const totalPrice = basePrice + selectedProteins.reduce((sum, protein) => sum + protein.price, 0);
+
+  
+      const rowData = [
+        guestNames,
+        proteins[0] || '',
+        proteins[1] || '',
+        proteins[2] || '',
+        additionalNotes || '',
+        `$${totalPrice}`
+      ];
+
+     
+        const currentData = await sheets.spreadsheets.values.get({
+          spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+          range: 'Sheet1!A:A', 
+        });
+
+
+        const nextRow = (currentData.data.values?.length || 0) + 1;
+        const range = `Sheet1!A${nextRow}:F${nextRow}`;
+
+        // Add order to Google Sheets at the next empty row
+        const result = await sheets.spreadsheets.values.update({
+          spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+          range: range,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: {
+            values: [rowData]
+          }
+        });
+
+      console.log('Order added to Google Sheets successfully');
+    } catch (googleError) {
+      console.error('Google Sheets error:', googleError.message);
+    }
+
+    const proteinOptions = [
+      { value: 'chicken', label: 'Chicken', price: 0 },
+      { value: 'shrimp', label: 'Shrimp', price: 0 },
+      { value: 'salmon', label: 'Salmon', price: 0 },
+      { value: 'steak', label: 'Steak', price: 0 },
+      { value: 'scallops', label: 'Scallops', price: 0 },
+      { value: 'vegetable', label: 'Vegetable (+tofu)', price: 0 },
+      { value: 'filet-mignon', label: 'Filet Mignon (+$5)', price: 5 },
+      { value: 'lobster-tail', label: 'Lobster Tail (+$10)', price: 10 }
+    ];
+    
+    const basePrice = 60;
+    const selectedProteins = proteinOptions.filter(option => proteins.includes(option.value));
+    const totalPrice = basePrice + selectedProteins.reduce((sum, protein) => sum + protein.price, 0);
+
     console.log('New order received:', {
       guestNames,
       proteins,
       additionalNotes,
+      totalCost: `$${totalPrice}`,
       timestamp: new Date().toISOString()
     });
-
-    // TODO: Integrate with Google Docs API
-    // For now, we'll simulate a successful submission
-    
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 1000));
 
     return Response.json({
       success: true,

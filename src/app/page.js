@@ -1,6 +1,6 @@
 'use client';
-
 import { useState } from 'react';
+
 
 export default function Home() {
   const [formData, setFormData] = useState({
@@ -11,6 +11,7 @@ export default function Home() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  
   const proteinOptions = [
     { value: 'chicken', label: 'Chicken', price: 0 },
     { value: 'shrimp', label: 'Shrimp', price: 0 },
@@ -36,10 +37,8 @@ export default function Home() {
       const index = currentProteins.indexOf(proteinValue);
       
       if (index > -1) {
-        // Remove if already selected
         currentProteins.splice(index, 1);
       } else {
-        // Add if not selected
         currentProteins.push(proteinValue);
       }
       
@@ -73,14 +72,16 @@ export default function Home() {
       if (!response.ok) {
         throw new Error(result.error || 'Failed to submit order');
       }
-
-      // Reset form after successful submission
+  
       setFormData({
         guestNames: '',
         proteins: [],
         additionalNotes: ''
       });
-      alert(`Order submitted successfully! Order ID: ${result.orderId}`);
+      
+       alert(`Added to the order! Thanks for submitting ${formData.guestNames}.`)
+    
+    
     } catch (error) {
       console.error('Error submitting form:', error);
       alert(`Error submitting order: ${error.message}`);
@@ -103,7 +104,7 @@ export default function Home() {
           </h1>
                       <div className="bg-white rounded-lg p-6 shadow-lg">
               <p className="text-gray-600 leading-relaxed">
-                We will be doing Hibachi from{' '}
+              We’ll be having Hibachi from {' '}
                 <a 
                   href="https://www.hibachiomakase.com/hibachi-catering-pennsylvania-booking/"
                   target="_blank"
@@ -112,7 +113,8 @@ export default function Home() {
                 >
                   Hibachi Catering Pennsylvania 
                 </a>
-                 {" "}on Sunday August 31st. Please select exactly three protein options.
+                 {" "}on Sunday August 31st. Please choose exactly three protein options. The cost is $60 per person, which includes fried rice and noodles. 
+                 If you wish to add Filet Mignon or Lobster Tail, please note that Filet Mignon is an additional $5 and Lobster Tail is an additional $10.
               </p>
             </div>
         </div>
@@ -250,7 +252,6 @@ export default function Home() {
               </div>
             </div>
 
-         
             <button
               type="submit"
               disabled={isSubmitting}

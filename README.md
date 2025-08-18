@@ -124,13 +124,24 @@ export async function POST(request) {
 
 ### 4. Environment Variables
 
-Create a `.env.local` file:
+Create a `.env.local` file in your project root:
 
 ```env
-GOOGLE_DOCS_ID=your_google_doc_id_here
-GOOGLE_SERVICE_ACCOUNT_EMAIL=your_service_account_email
-GOOGLE_PRIVATE_KEY=your_private_key
+GOOGLE_DOCS_ID=your_google_document_id_here
 ```
+
+**Example:** `GOOGLE_DOCS_ID=1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms`
+
+### 5. Google Credentials File
+
+1. **Download your service account key** from Google Cloud Console
+2. **Rename it** to `google-credentials.json`
+3. **Place it** in `src/app/api/submit-order/`
+4. **Ensure it contains** these required fields:
+   - `private_key`
+   - `client_email`
+   - `project_id`
+   - `type: "service_account"`
 
 ## Technologies Used
 
