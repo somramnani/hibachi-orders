@@ -3,14 +3,29 @@ import { google } from 'googleapis';
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { guestNames, proteins, additionalNotes } = body;
+    const { guestName, proteins, additionalNotes } = body;
 
-    if (!guestNames || !proteins || proteins.length !== 3) {
+    if (!guestName || !proteins || proteins.length !== 3) {
       return Response.json(
-        { error: 'Guest names and exactly three protein selections are required' },
+        { error: 'Guest name and exactly three protein selections are required' },
         { status: 400 }
       );
     }
+
+    const proteinOptions = [
+      { value: 'chicken', label: 'Chicken', price: 0 },
+      { value: 'shrimp', label: 'Shrimp', price: 0 },
+      { value: 'salmon', label: 'Salmon', price: 0 },
+      { value: 'steak', label: 'Steak', price: 0 },
+      { value: 'scallops', label: 'Scallops', price: 0 },
+      { value: 'vegetable', label: 'Vegetable (+tofu)', price: 0 },
+      { value: 'filet-mignon', label: 'Filet Mignon (+$5)', price: 5 },
+      { value: 'lobster-tail', label: 'Lobster Tail (+$10)', price: 10 }
+    ];
+    
+    const basePrice = 60;
+    const selectedProteins = proteinOptions.filter(option => proteins.includes(option.value));
+    const totalPrice = basePrice + selectedProteins.reduce((sum, protein) => sum + protein.price, 0);
 
     try {
       if (!process.env.GOOGLE_SHEETS_ID) {
@@ -34,26 +49,9 @@ export async function POST(request) {
         });
 
       const sheets = google.sheets({ version: 'v4', auth });
-      
-   
-      const proteinOptions = [
-        { value: 'chicken', label: 'Chicken', price: 0 },
-        { value: 'shrimp', label: 'Shrimp', price: 0 },
-        { value: 'salmon', label: 'Salmon', price: 0 },
-        { value: 'steak', label: 'Steak', price: 0 },
-        { value: 'scallops', label: 'Scallops', price: 0 },
-        { value: 'vegetable', label: 'Vegetable (+tofu)', price: 0 },
-        { value: 'filet-mignon', label: 'Filet Mignon (+$5)', price: 5 },
-        { value: 'lobster-tail', label: 'Lobster Tail (+$10)', price: 10 }
-      ];
-      
-      const basePrice = 60;
-      const selectedProteins = proteinOptions.filter(option => proteins.includes(option.value));
-      const totalPrice = basePrice + selectedProteins.reduce((sum, protein) => sum + protein.price, 0);
-
   
       const rowData = [
-        guestNames,
+        guestName,
         proteins[0] || '',
         proteins[1] || '',
         proteins[2] || '',
@@ -86,23 +84,10 @@ export async function POST(request) {
       console.error('Google Sheets error:', googleError.message);
     }
 
-    const proteinOptions = [
-      { value: 'chicken', label: 'Chicken', price: 0 },
-      { value: 'shrimp', label: 'Shrimp', price: 0 },
-      { value: 'salmon', label: 'Salmon', price: 0 },
-      { value: 'steak', label: 'Steak', price: 0 },
-      { value: 'scallops', label: 'Scallops', price: 0 },
-      { value: 'vegetable', label: 'Vegetable (+tofu)', price: 0 },
-      { value: 'filet-mignon', label: 'Filet Mignon (+$5)', price: 5 },
-      { value: 'lobster-tail', label: 'Lobster Tail (+$10)', price: 10 }
-    ];
-    
-    const basePrice = 60;
-    const selectedProteins = proteinOptions.filter(option => proteins.includes(option.value));
-    const totalPrice = basePrice + selectedProteins.reduce((sum, protein) => sum + protein.price, 0);
+
 
     console.log('New order received:', {
-      guestNames,
+      guestName,
       proteins,
       additionalNotes,
       totalCost: `$${totalPrice}`,
@@ -114,7 +99,7 @@ export async function POST(request) {
       message: 'Order submitted successfully',
       orderId: `ORDER-${Date.now()}`,
       data: {
-        guestNames,
+        guestName,
         proteins,
         additionalNotes,
         submittedAt: new Date().toISOString()

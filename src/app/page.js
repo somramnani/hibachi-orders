@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
 
-
 export default function Home() {
   const [formData, setFormData] = useState({
     guestName: '',
