@@ -185,7 +185,7 @@ export default function Home() {
                 const selectedCount = formData.proteins.filter(Boolean).length;
                 if (selectedCount === 0) {
                   return (
-                    <p className="text-sm text-red-600 mt-2">Please select exactly three protein options</p>
+                    <p className="text-sm text-red-600 mt-2">Please select three protein options</p>
                   );
                 }
                 if (selectedCount > 0 && selectedCount < 3) {
