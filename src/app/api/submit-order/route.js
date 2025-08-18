@@ -24,8 +24,10 @@ export async function POST(request) {
     ];
     
     const basePrice = 60;
-    const selectedProteins = proteinOptions.filter(option => proteins.includes(option.value));
-    const totalPrice = basePrice + selectedProteins.reduce((sum, protein) => sum + protein.price, 0);
+    const selectedProteinObjects = proteins
+      .map((value) => proteinOptions.find((option) => option.value === value))
+      .filter(Boolean);
+    const totalPrice = basePrice + selectedProteinObjects.reduce((sum, protein) => sum + protein.price, 0);
 
     try {
       if (!process.env.GOOGLE_SHEETS_ID) {
