@@ -5,7 +5,6 @@ export async function POST(request) {
     const body = await request.json();
     const { guestNames, proteins, additionalNotes } = body;
 
-    // Validate required fields
     if (!guestNames || !proteins || proteins.length !== 3) {
       return Response.json(
         { error: 'Guest names and exactly three protein selections are required' },
@@ -14,31 +13,29 @@ export async function POST(request) {
     }
 
     try {
-      // Check if Google Sheets is configured
       if (!process.env.GOOGLE_SHEETS_ID) {
         console.log('Google Sheets not configured - skipping Google Sheets integration');
         throw new Error('GOOGLE_SHEETS_ID environment variable not set');
       }
 
-      // Try service account first, fallback to OAuth2 if needed
-      let auth;
-      try {
-        auth = new google.auth.GoogleAuth({
-          keyFile: 'src/app/api/submit-order/google-credentials.json',
+        let privateKey = process.env.GOOGLE_PRIVATE_KEY;
+        if (privateKey) {
+          privateKey = privateKey.replace(/^["']|["']$/g, '').replace(/\\n/g, '\n');
+        }
+
+        const auth = new google.auth.GoogleAuth({
+          credentials: {
+            type: 'service_account',
+            project_id: process.env.GOOGLE_PROJECT_ID,
+            private_key: privateKey,
+            client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+          },
           scopes: ['https://www.googleapis.com/auth/spreadsheets'],
         });
-      } catch (authError) {
-        console.log('Service account auth failed, trying OAuth2...');
-        auth = new google.auth.OAuth2(
-          process.env.GOOGLE_CLIENT_ID,
-          process.env.GOOGLE_CLIENT_SECRET,
-          process.env.GOOGLE_REDIRECT_URI
-        );
-      }
 
       const sheets = google.sheets({ version: 'v4', auth });
       
-      // Calculate total cost
+   
       const proteinOptions = [
         { value: 'chicken', label: 'Chicken', price: 0 },
         { value: 'shrimp', label: 'Shrimp', price: 0 },
@@ -54,7 +51,7 @@ export async function POST(request) {
       const selectedProteins = proteinOptions.filter(option => proteins.includes(option.value));
       const totalPrice = basePrice + selectedProteins.reduce((sum, protein) => sum + protein.price, 0);
 
-      // Format data for Google Sheets columns: Name, Protein 1, Protein 2, Protein 3, Notes, Cost
+  
       const rowData = [
         guestNames,
         proteins[0] || '',
@@ -64,23 +61,31 @@ export async function POST(request) {
         `$${totalPrice}`
       ];
 
-      // Add order to Google Sheets
-      const result = await sheets.spreadsheets.values.append({
-        spreadsheetId: process.env.GOOGLE_SHEETS_ID,
-        range: 'Sheet1!A:F', // Columns A-F for your 6 columns
-        valueInputOption: 'USER_ENTERED',
-        insertDataOption: 'INSERT_ROWS',
-        requestBody: {
-          values: [rowData]
-        }
-      });
+     
+        const currentData = await sheets.spreadsheets.values.get({
+          spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+          range: 'Sheet1!A:A', 
+        });
+
+
+        const nextRow = (currentData.data.values?.length || 0) + 1;
+        const range = `Sheet1!A${nextRow}:F${nextRow}`;
+
+        // Add order to Google Sheets at the next empty row
+        const result = await sheets.spreadsheets.values.update({
+          spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+          range: range,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: {
+            values: [rowData]
+          }
+        });
 
       console.log('Order added to Google Sheets successfully');
     } catch (googleError) {
       console.error('Google Sheets error:', googleError.message);
     }
 
-    // Calculate total cost for logging
     const proteinOptions = [
       { value: 'chicken', label: 'Chicken', price: 0 },
       { value: 'shrimp', label: 'Shrimp', price: 0 },
