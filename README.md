@@ -1,6 +1,6 @@
 # Hibachi Orders
 
-A beautiful single-page website for collecting Hibachi orders with a form that can be integrated with Google Docs.
+A  single-page website for collecting Hibachi orders with a form that can be integrated with Google Docs.
 
 ## Features
 
